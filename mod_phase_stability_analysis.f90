@@ -264,7 +264,7 @@ module mod_phase_stability_analysis
         !!気相のフガシティ係数
         C_V = z_factor-B_V
         !write(*,*) 'e'
-        do j=1,3!com_2phase
+        do j=1,com_2phase
         !    write(*,*) 'i'
             call residualvectorset3(com_2phase,sigma)
             call residualvectorset3(com_2phase,E_V(i))

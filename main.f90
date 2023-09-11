@@ -44,8 +44,7 @@ program  main
     call file_open
     
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),z0(com_2phase+com_ion),k0(com_2phase),lnk0(com_2phase)&
-        ,x0(com_2phase),y0(com_2phase+com_ion),w0(com_2phase),alpha0(com_2phase),cmat(com_2phase+1,com_2phase+1)&
-        ,dmat(com_2phase+1),chemi_mat(chemi+mine,com_all),emat(eq,eq),fmat(eq),gmat(n*eq,n*eq),hmat(n*eq)&
+        ,x0(com_2phase),y0(com_2phase+com_ion),w0(com_2phase),alpha0(com_2phase),chemi_mat(chemi+mine,com_all)&
         ,theta0(chemi+mine),Sw(n),wc(com_2phase+com_ion,n),fai(n))
      
     !!相対浸透率のテーブルデータのインプット
@@ -211,7 +210,7 @@ program  main
             end do
         end if
     end if
-    
+    deallocate(amat,bmat)
     !write(*,*) lnk0,lumda,v0
     do i=1,com_2phase
     !    write(*,*) z0(i)
@@ -219,7 +218,7 @@ program  main
     !write(*,*) phase_judge0,'phase'
     
     
-    
+    allocate(cmat(com_2phase+1,com_2phase+1),dmat(com_2phase+1))
     if (phase_judge0 == 2) then
         do iteration = 1,100
             call ini_fla(P0,z0,lnk0,v0,z_factor0,fxs)
@@ -253,6 +252,7 @@ program  main
             end if
         end do
     end if
+    deallocate(cmat,dmat)
     lnk1=lnk0(1) !chemicalの前に謎にlnkの値が0になるバグが10回に1回くらいおこるので、一旦保存して、あとで　代入する。まじでなぞ
     lnk2=lnk0(2)
     lnk3=lnk0(3)
@@ -290,6 +290,7 @@ program  main
     
     !液相がある場合、電離
     if (phase_judge0 == 2 .or. phase0 == 1) then
+        allocate(emat(eq,eq),fmat(eq))
         do time =1,100!00 !time iteration
             !write(11,*) 'day',time
             do iteration =1,100
@@ -379,6 +380,7 @@ program  main
             end if
             
         end do
+        deallocate(emat,fmat)
     end if
     
     
@@ -426,12 +428,12 @@ program  main
     
     
     !!ようやくメイン計算！！！
-    
+    allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
         do day =1,1!150!0
         do hour =1,1!24    
         !    !!相安定解析
-            do ii=1,1!n !gridごとに相安定性解析するよ
+            do ii=1,n !gridごとに相安定性解析するよ
                 do i=1,com_2phase+com_ion
                     z0(i)=z(i,ii)
                 end do
@@ -464,7 +466,7 @@ program  main
                     if ((z0(1) >= z0(2)+z0(3)+z0(4))) then
                         
                         !write(*,*) 'main',ii
-                        call phase_stability_liquid2(alpha0,P0,z0,fxs) !?こいつがなんか悪そう
+                        call phase_stability_liquid(alpha0,P0,z0,fxs) !?こいつがなんか悪そう
                         !write(*,*) 'a'
                     else
                         !write(*,*) 'main',ii
@@ -588,7 +590,8 @@ program  main
         end do !day loop
         
         end do !year loop
-    
+        deallocate(amat,bmat,gmat,hmat)
+    !#TODOdeallocateしまくる
     
     write(*,*) 'finish!!!'
 end program  main
