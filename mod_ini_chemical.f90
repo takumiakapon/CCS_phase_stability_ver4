@@ -463,6 +463,8 @@ module mod_ini_chemical
         
         g(eq-1) = Sw+Sg-1.0d0
         g(eq) = fra
+
+        
         
     end subroutine
     

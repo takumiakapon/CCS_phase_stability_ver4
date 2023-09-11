@@ -466,12 +466,12 @@ program  main
                     if ((z0(1) >= z0(2)+z0(3)+z0(4))) then
                         
                         !write(*,*) 'main',ii
-                        call phase_stability_liquid(alpha0,P0,z0,fxs) !?こいつがなんか悪そう
+                !        call phase_stability_liquid2(alpha0,P0,z0,fxs) !?こいつがなんか悪そう
                         !write(*,*) 'a'
                     else
                         !write(*,*) 'main',ii
                         !write(*,*) 'vapor'
-                        call phase_stability_vapor(alpha0,P0,z0,fxs)
+                !        call phase_stability_vapor(alpha0,P0,z0,fxs)
                     end if
             !write(*,*) 'main',ii
                     
@@ -591,7 +591,7 @@ program  main
         
         end do !year loop
         deallocate(amat,bmat,gmat,hmat)
-    !#TODOdeallocateしまくる
+    !#TODOメモリリーク説があるので、初期計算は別でやって、無理やりインプットさせる！！
     
     write(*,*) 'finish!!!'
 end program  main

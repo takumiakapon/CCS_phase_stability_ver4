@@ -178,7 +178,7 @@ module mod_phase_stability_analysis
         
         alpha => xd(1:com_2phase)
         call outxs(alpha,kakuninn)
-        !write(*,*) kakuninn
+        write(*,*) kakuninn
         
         do i=1,com_2phase
             w(i) = (alpha(i) / 2.0d0) ** 2.0d0
@@ -267,7 +267,7 @@ module mod_phase_stability_analysis
         do j=1,com_2phase
         !    write(*,*) 'i'
             call residualvectorset3(com_2phase,sigma)
-            call residualvectorset3(com_2phase,E_V(i))
+            call residualvectorset3(com_2phase,E_V(j))
         !    write(*,*) 'u'
             D_V(j)=b(j)*(z_factor-1.0d0)/b_mix_V
             !call outxs(D_V,kakuninn)
@@ -283,7 +283,7 @@ module mod_phase_stability_analysis
             
         !    write(*,*) 'n'
             call outxs(E_V,kakuninn)
-            write(*,*) kakuninn
+            !write(*,*) kakuninn
         end do
         
         G_V=(z_factor+B_V*(1.0d0+sqrt(2.0d0)))/(z_factor+B_V*(1.0d0-sqrt(2.0d0)))

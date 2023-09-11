@@ -163,6 +163,7 @@ module mod_ini_flash
         call out_diffsx(fra,kaku)
         !write(*,*) kaku
         
+        
         !!相安定解析と初期フラッシュでは主要変数の数が違うから、それを「mod_fugacity」では考慮できていない→主要変数の数も引数にしちゃう？
         
         
