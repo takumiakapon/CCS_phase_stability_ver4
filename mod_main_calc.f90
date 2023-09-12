@@ -12,10 +12,10 @@ module mod_main_calc
 
     contains
     subroutine main_calc(V0,lnk0,Nc0,Nc0old,Nm0,Nm0old,Nmini,P0,P0old,Pb0,fai00,fai000,q_judge,phase_judge,phase,&
-                        Swd,krgd,krwd,Sw00,wc0,chemi_mat,g)
+                        Swd,krgd,krwd,Sw00,wc0,chemi_mat,theta0,g)
         implicit none
         integer,intent(inout)::q_judge,phase_judge(n),phase(n)
-        real(8),intent(inout)::Pb0,Nmini(com_mine),chemi_mat(chemi+mine,com_all)
+        real(8),intent(inout)::Pb0,Nmini(com_mine),chemi_mat(chemi+mine,com_all),theta0(chemi+mine,n)
         real(8),intent(inout),dimension(n)::V0,P0,P0old,fai00,Sw00,fai000
         real(8),intent(inout),dimension(com_2phase,n)::lnk0
         real(8),intent(inout),dimension(com_2phase+com_ion,n)::Nc0,Nc0old,wc0
@@ -47,7 +47,7 @@ module mod_main_calc
         type(diffs)::q,MD_injection_d,T_L(com_2phase+com_ion,n),T_V(com_2phase,n)
 
         !化学反応
-        real(8)::ks(chemi+mine),ke(chemi),km(mine),theta0(chemi+mine,n),min0
+        real(8)::ks(chemi+mine),ke(chemi),km(mine),min0
         real(8),allocatable,dimension(:)::w10,w20,w30,w40,w50,w60,w70,w80,w90,w100,w110,w120,w130,w140
         !real(8),allocatable,dimension(:)::Q10,Q20,Q30,Q40,Q50,Q60,Q70,Q80,Q90,Q100
         real(8),allocatable,dimension(:)::theta10,theta20,theta30,theta40,theta50,theta60,theta70,theta80,theta90,theta100
@@ -189,7 +189,7 @@ module mod_main_calc
                 do j=com_2phase+1,com_2phase+com_ion
                     x(j,i) = z(j,i)/(1.0d0-V(i))
                 end do
-            else
+            elseif (phase(i) == 1) then
                 do j=1,com_2phase
                     call residualvectorset3(n*eq+q_judge,y(j,i))
                 end do
@@ -199,7 +199,7 @@ module mod_main_calc
             end if
         end do
         !do j=1,com_2phase+com_ion
-        !    kakuninnnnnn(j) = x(j,1)
+        !    kakuninnnnnn(j) = y(j,1)
         !end do
         !call outxs(kakuninnnnnn,kakuninn)
         !write(*,*) kakuninn
@@ -208,6 +208,11 @@ module mod_main_calc
         call vapor_fugacity_main(y,lnfai_V,P,z_factor0,z_factor,q_judge,phase_judge)
         call liquid_fugacity_main(lnfai_L,P,v_L1,v_L2,v_L3,v_L4)
 
+        !do j=1,com_2phase!+com_ion
+        !    kakuninnnnnn(j) = lnfai_L(j,1)
+        !end do
+        !call outxs(kakuninnnnnn,kakuninn)
+        !write(*,*) kakuninn
 
         
         !!モル密度、体積
@@ -237,7 +242,7 @@ module mod_main_calc
             MD_L(i) = 1.0d0/MV_L(i)
         end do
 
-        !call outxs(MD_V,kakuninn)
+        !call outxs(MD_L,kakuninn)
         !write(*,*) kakuninn
 
 
@@ -252,6 +257,7 @@ module mod_main_calc
             end if
         end do
         call outxs(Sw,Sw0)
+        !write(*,*) Sw0
         
         
         !!相質量密度[kg/m^3]
@@ -282,6 +288,8 @@ module mod_main_calc
             phase_d_L(i)=Mw_ave_L(i)*MD_L(i)*10.0d0**(-3.0d0) ![kg/m^3]
             phase_d_V(i)=Mw_ave_V(i)*MD_V(i)*10.0d0**(-3.0d0)
         end do
+        call outxs(phase_d_V,kakuninn)
+        !write(*,*) kakuninn
 
         !!相粘度
         !?液相
@@ -297,6 +305,8 @@ module mod_main_calc
             myu_L(i)=(myu_L_normal*10.0d0**(-6.0d0))*(1.0d0+beta_v*(P(i)*10.0d0**(-9.0d0))) ![Pa・s]
         end do
 
+        !call outxs(myu_L,kakuninn)
+        !write(*,*) kakuninn
         !?気相
         !vc臨界体積[m^3/mol],1:H2O
         Vc(1)=56.3d0*10.0d0**(-6.0d0)
@@ -324,7 +334,7 @@ module mod_main_calc
                 end do
                 zeta(i)=Tc_ave_V(i)**(1.0d0/6.0d0)/((Mw_ave_V(i)**(1.0d0/2.0d0))*(Pc_ave_V(i)**(2.0d0/3.0d0)))
                 ro_r_V(i)=MD_V(i)*Vc_ave_V(i)
-            else
+            elseif (phase(i) == 1) then
                 call residualvectorset3(n*eq+q_judge,zeta(i))
                 call residualvectorset3(n*eq+q_judge,ro_r_V(i))
             end if
@@ -343,7 +353,7 @@ module mod_main_calc
                 myu_V_SC(i)=(y(1,i)*myu_c(1)*sqrt(Mw(1))+y(2,i)*myu_c(2)*sqrt(Mw(2))&
                             +y(3,i)*myu_c(3)*sqrt(Mw(3))+y(4,i)*myu_c(4)*sqrt(Mw(4)))/&
                             (y(1,i)*sqrt(Mw(1))+y(2,i)*sqrt(Mw(2))+y(3,i)*sqrt(Mw(3))+y(4,i)*sqrt(Mw(4))) ![cP]
-            else
+            elseif (phase(i) == 1) then
                 call residualvectorset3(n*eq+q_judge,myu_V_SC(i))
             end if
         end do
@@ -358,12 +368,12 @@ module mod_main_calc
             if (phase_judge(i) == 2) then
                 myu_V(i)=(myu_V_SC(i)+(((av_0+av_1*ro_r_V(i)+av_2*ro_r_V(i)**2.0d0+av_3*ro_r_V(i)**3.0d0+&
                          av_4*ro_r_V(i)**4.0d0)**4.0d0-10.0d0**(-4.0d0))/zeta(i)))*10.0d0**(-3.0d0) !cP→Pa・s
-            else
+            elseif (phase(i) == 1) then
                 call residualvectorset3(n*eq+q_judge,myu_V(i))
             end if
         end do
         
-        call outxs(myu_L,kakuninn)
+        call outxs(myu_V,kakuninn)
         !write(*,*) kakuninn!!粘度よさそう
 
         !!相対浸透率について
@@ -385,6 +395,8 @@ module mod_main_calc
                 krg(i)=krg_swc*((1.0d0-Sw(i)-Sgr)/(1.0d0-Swc-Sgr))**ng
             end if
         end do
+        !call outxs(krg,kakuninn)
+        !write(*,*) kakuninn
 
         !!孔隙率について
         NmMD(1)=Nm1_MD
@@ -480,6 +492,13 @@ module mod_main_calc
         ks(8)=10.0d0**(-10.64d0) !フォルステライト
         ks(9)=10.0d0**(-5.81d0) !カルサイト
         ks(10)=10.0d0**(-12.0d0)!10.0d0**(-9.34d0) !マグネサイト
+
+        !!貯留層の温度における鉱物反応の速度定数--------
+        !ks(6)=ks(6)*exp(-Ea1/R*(1.0d0/temp-1.0d0/(273.15d0+25.0d0)))
+        !ks(7)=ks(7)*exp(-Ea2/R*(1.0d0/temp-1.0d0/(273.15d0+25.0d0)))
+        !ks(8)=ks(8)*exp(-Ea3/R*(1.0d0/temp-1.0d0/(273.15d0+25.0d0)))
+        !ks(9)=ks(9)*exp(-Ea4/R*(1.0d0/temp-1.0d0/(273.15d0+25.0d0)))
+        !ks(10)=ks(10)*exp(-Ea5/R*(1.0d0/temp-1.0d0/(273.15d0+25.0d0)))
         
         
         !!平衡定数
@@ -495,6 +514,7 @@ module mod_main_calc
         km(5) = km5
 
         do i=1,n
+            if (phase(i) == 1 .or. phase_judge(i) ==2) then
             do j=1,com_2phase+com_ion
                 wc(j,i)=MD_L(i)*x(j,i)/(MD_L(i)*x(1,i)*18.015d0*10.0d0**(-3.0d0))
             end do
@@ -513,6 +533,7 @@ module mod_main_calc
             w12(i)=wc(12,i)
             w13(i)=wc(13,i)
             w14(i)=wc(14,i)
+        end if
         end do
         call outxs(w1,w10)
         call outxs(w2,w20)
@@ -628,9 +649,9 @@ module mod_main_calc
             !H2O + CO2 = HCO3- + H+
             !HCO3- = H+ + CO32-
             !H2O = H+ + OH-
-            min0=10000000000000000.0d0
+            
             do j=1,chemi
-                
+                min0=10000000000000000.0d0
                 call residualvectorset4(min0,n*eq+q_judge,min)
                 if (theta0(j,i) < 1.0d0) then !順反応
                     do jj=1,com_2phase+com_ion

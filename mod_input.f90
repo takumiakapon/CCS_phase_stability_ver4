@@ -88,6 +88,9 @@ module mod_input
     
     !鉱物のモル密度[mol/m^3]
     real(8),parameter::Nm1_MD=2.70995d0*10.0d0**6.0d0/Mwm1
+
+    !活性化エネルギー[J/mol]
+    real(8),parameter::Ea1=23500
     
     !!!!!!!!MgCO3!!!!!!!
     !鉱物の初期割合
@@ -102,7 +105,9 @@ module mod_input
     !鉱物のモル密度[mol/m^3]
     real(8),parameter::Nm2_MD=3.00929d0*10.0d0**6.0d0/Mwm2
     
-    
+    !活性化エネルギー[J/mol]
+    real(8),parameter::Ea2=23500
+
     !!!!!!!!CaAl2Si2O8!!!!!!!
     !鉱物の初期割合
     real(8),parameter::Nm3_per=0.1
@@ -116,6 +121,9 @@ module mod_input
     !鉱物のモル密度[mol/m^3]
     real(8),parameter::Nm3_MD=2.76029d0*10.0d0**6.0d0/Mwm3
     
+    !活性化エネルギー[J/mol]
+    real(8),parameter::Ea3=17800
+
     !!!!!!!!MgSiO3!!!!!!!
     !鉱物の初期割合
     real(8),parameter::Nm4_per=0.1
@@ -129,6 +137,9 @@ module mod_input
     !鉱物のモル密度[mol/m^3]
     real(8),parameter::Nm4_MD=3.20977d0*10.0d0**6.0d0/Mwm4
     
+    !活性化エネルギー[J/mol]
+    real(8),parameter::Ea4=80000
+
     !!!!!!!!Mg2SiO4!!!!!!!
     !鉱物の初期割合
     real(8),parameter::Nm5_per=0.1
@@ -142,6 +153,9 @@ module mod_input
     !鉱物のモル密度[mol/m^3]
     real(8),parameter::Nm5_MD=3.2129d0*10.0d0**6.0d0/Mwm5
     
+    !活性化エネルギー[J/mol]
+    real(8),parameter::Ea5=79000
+
     !!孔隙率
     real(8),parameter::faiini=0.2!0.085
     
@@ -157,7 +171,7 @@ module mod_input
     !2.7d0*9.86923d0*10**(-16.0d0) !鈴木さん学部苫小牧
     
     !!timestep
-    real(8),parameter::dt=1.0d0*60.0d0*60.0d0!*24.0d0 !day→s
+    real(8),parameter::dt=1.0d0*60.0d0*60.0d0*24.0d0 !day→s
     
     !!坑井関連
     real(8),parameter::rw=0.0762d0 ![m]

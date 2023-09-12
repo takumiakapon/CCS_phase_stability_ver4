@@ -20,7 +20,7 @@ program  main
     !!初期計算用
     integer::i,j,jj,iteration,time,phase_judge0,phase0,ii,year,q_judge,hour,day
     real(8),allocatable,dimension(:,:)::amat,cmat,emat,gmat
-    real(8),allocatable,dimension(:)::bmat,z0,k0,lnk0,x0,y0,w0,alpha0,dmat,fmat,hmat,theta0
+    real(8),allocatable,dimension(:)::bmat,z0,k0,lnk0,x0,y0,w0,alpha0,dmat,fmat,hmat
     real(8)::V0,L0,P0,P0old,error,wt,lumda,z_factor0
     type(diffs),allocatable::fxs(:)
     
@@ -36,7 +36,7 @@ program  main
     real(8),dimension(com_2phase,n)::lnk
     real(8),dimension(com_2phase+com_ion,n)::Nc,Ncold,z
     real(8),dimension(com_mine,n)::Nm,Nmold
-    real(8)::Pb0,fai0,Nmini(com_mine)
+    real(8)::Pb0,fai0,Nmini(com_mine),theta0(chemi+mine,n)
     real(8),dimension(21)::Swd,krgd,krwd
     real(8),allocatable,dimension(:)::Sw,fai
     real(8),allocatable,dimension(:,:)::wc
@@ -47,7 +47,7 @@ program  main
     
     allocate(z0(com_2phase+com_ion),k0(com_2phase),lnk0(com_2phase)&
         ,x0(com_2phase),y0(com_2phase+com_ion),w0(com_2phase),alpha0(com_2phase),chemi_mat(chemi+mine,com_all)&
-        ,theta0(chemi+mine),Sw(n),wc(com_2phase+com_ion,n),fai(n))
+        ,Sw(n),wc(com_2phase+com_ion,n),fai(n))
      
     !!相対浸透率のテーブルデータのインプット
     do i=1,21
@@ -446,8 +446,8 @@ program  main
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,50!150!0
-        do hour =1,24    
+        do day =1,1!5!0!150!0
+        do hour =1,1!24    
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
                 do i=1,com_2phase+com_ion
@@ -518,7 +518,7 @@ program  main
                 
                     error = sqrt(dot_product(bmat,bmat))
                    !write(*,*) error,iteration
-                    if (error < 10.0d0**(-5.0d0)) then
+                    if (error < 10.0d0**(-3.0d0)) then
                         exit
                     end if
                 end do
@@ -577,8 +577,8 @@ program  main
                     !write(*,*) ii,'grid',phase_judge(ii),'phase'
             end do
 
-            !!mainの流動計算
-    
+        !!mainの流動計算
+        write(30,*) phase    
         if (year < 4) then
             q_judge = 1 !流量制御
         else
@@ -588,7 +588,7 @@ program  main
 
         do iteration=1,100
             call main_calc(V,lnk,Nc,Ncold,Nm,Nmold,Nmini,P,Pold,Pb0,fai,fai000,q_judge,phase_judge,phase,&
-                            Swd,krgd,krwd,Sw,wc,chemi_mat,fxs)
+                            Swd,krgd,krwd,Sw,wc,chemi_mat,theta0,fxs)
 
             deallocate(gmat,hmat)
             allocate(gmat(n*eq+q_judge,n*eq+q_judge),hmat(n*eq+q_judge))
@@ -601,20 +601,50 @@ program  main
             !    write(13,*) (gmat(i,j),j=1,n*eq+q_judge),hmat(i)
     !        end do
             do i=1,n
+
+                do j=1,com_2phase
+                    if (Nc(j,i) == 0) then
+                        do jj=1,eq
+                            gmat(i*eq-eq+j,jj) = 0.0d0
+                            gmat(jj,i*eq-eq+j) = 0.0d0
+                            gmat(i*eq-eq+j,i*eq-eq+j) = 1.0d0 !?存在しない成分の熱力学平衡条件式は計算しない？
+                        end do
+                    end if
+                end do
+
                 do j=1,com_2phase+com_ion
                     if (Nc(j,i) == 0) then
                         do jj=1,eq
                             gmat(i*eq-eq+j+com_2phase,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j+com_2phase) = 0.0d0
-                            gmat(i*eq-eq+j+com_2phase,i*eq-eq+j+com_2phase) = 1.0d0 !?存在しない成分は計算しない？
                         end do
+                        gmat(i*eq-eq+j+com_2phase,i*eq-eq+j+com_2phase) = 1.0d0 !?存在しない成分の物質収支は計算しない？
                     end if
                 end do
+
+                if (phase_judge(i) /= 2) then
+                    do jj=1,eq
+                        gmat(i*eq,jj) = 0.0d0
+                        gmat(jj,i*eq) = 0.0d0
+                    end do
+                    gmat(i*eq,i*eq) = 1.0d0 !?1相の時は、rachford解かない
+
+                    do j=1,com_2phase+com_ion
+                        do jj=1,eq
+                            gmat(i*eq-eq+j,jj) = 0.0d0
+                            gmat(jj,i*eq-eq+j) = 0.0d0
+                        end do
+                        gmat(i*eq-eq+j,i*eq-eq+j) = 1.0d0 !?1相の時は、lnk解かない
+                    end do
+                end if
+
+
+                
             end do
             
 
             call pvgauss(n*eq+q_judge,gmat,hmat)
-            !!#TODO相の数とか、成分の数で分岐
+            
     !        do i=1,n*eq+q_judge
             !    write(13,*) (gmat(i,j),j=1,n*eq+q_judge),hmat(i)
     !        end do
@@ -639,8 +669,8 @@ program  main
             end if 
             error = sqrt(dot_product(hmat,hmat))
 
-            !write(*,*) iteration,error
-            if (error < 10.0d0**(-5.0d0)) then
+            write(*,*) iteration,error
+            if (error < 10.0d0**(-3.0d0)) then
                 exit
             end if
 
@@ -659,7 +689,7 @@ program  main
     !        write(*,*) day,iteration!,P(i)
     !end do
     
-    write(*,*) day,iteration,P
+    write(*,*) day,error,iteration,P(1)
     
     do i=1,n
         write(30+i,*) P(i)
@@ -674,13 +704,15 @@ program  main
         write(75+i,*) wc(8,i)
         write(80+i,*) wc(10,i)
         write(85+i,*) wc(11,i)
-        write(90+i,*) (Nm(2,i)-Nm2_ini)*dx*dy*dz*(1.0d0-fai000(i))
-        write(95+i,*) (Nm(4,i)-Nm4_ini)*dx*dy*dz*(1.0d0-fai000(i))
-        !write(*,*) fai000(i)!#TODO鉱物のモル数の変化おかしい、式をしっかり確認、SiO2おかしいかも 
+        write(90+i,*) Nm(2,i)*dx*dy*dz*(1.0d0-fai000(i))
+        write(95+i,*) Nm(4,i)*dx*dy*dz*(1.0d0-fai000(i))
+        !write(*,*) fai000(i)!#TODOSiO2おかしいかも 
+        write(200+i,*) theta0(7,i)
 
     end do
 
 
+    
 
 
 

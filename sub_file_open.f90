@@ -82,5 +82,12 @@ subroutine file_open
 
 
     open(101,file='relative permeability.txt')
+
+    open(201,file='theta1.txt')
+    open(202,file='theta2.txt')
+    open(203,file='theta3.txt')
+    open(204,file='theta4.txt')
+    open(205,file='theta5.txt')
+    
     end subroutine
     
