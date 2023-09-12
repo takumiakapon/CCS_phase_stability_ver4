@@ -178,7 +178,7 @@ module mod_phase_stability_analysis
         
         alpha => xd(1:com_2phase)
         call outxs(alpha,kakuninn)
-        write(*,*) kakuninn
+        !write(*,*) kakuninn
         
         do i=1,com_2phase
             w(i) = (alpha(i) / 2.0d0) ** 2.0d0
