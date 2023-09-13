@@ -171,7 +171,7 @@ module mod_input
     !2.7d0*9.86923d0*10**(-16.0d0) !鈴木さん学部苫小牧
     
     !!timestep
-    real(8),parameter::dt=1.0d0*60.0d0*60.0d0*24.0d0 !day→s
+    real(8),parameter::dt=1.0d0*60.0d0*60.0d0!*24.0d0 !day→s
     
     !!坑井関連
     real(8),parameter::rw=0.0762d0 ![m]

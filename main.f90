@@ -1,4 +1,4 @@
-!#TODOメモリリーク説があるので、初期計算は別でやって、無理やりインプットさせる！！
+!#メモリリーク説があるので、初期計算は別でやって、無理やりインプットさせる！！
 program  main
     
     use mod_autodiff
@@ -446,16 +446,19 @@ program  main
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,3!10!50!0!150!0
-        do hour =1,1!24    
+        do day =1,3!1!50!0!150!0
+        do hour =1,24    
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
                 do i=1,com_2phase+com_ion
                     z0(i)=z(i,ii)
                 end do
+                z0(1) = 1.0d0 - z0(2) - z0(3) - z0(4)
                 do i=1,com_2phase
                     k0(i)=exp(lnk(i,ii))
                 end do
+                P0=P(ii)
+                
                 
             
                 !相安定解析の主要変数の初期値
@@ -482,7 +485,7 @@ program  main
                     if ((z0(1) >= z0(2)+z0(3)+z0(4))) then
                         
                         !write(*,*) 'main',ii
-                        call phase_stability_liquid2(alpha0,P0,z0,fxs) !?こいつがなんか悪そう
+                        call phase_stability_liquid2(alpha0,P0,z0,fxs) 
                         !write(*,*) 'a'
                     else
                         !write(*,*) 'main',ii
@@ -545,7 +548,7 @@ program  main
                 else
                     phase_judge(ii) = 2
                     phase(ii) = 2 !2相
-                    v0 = z0(2) + z0(3) + z0(4)
+                    v0 = 1.0d0-z0(1)
                     L0 = 1.0d0 - v0
                     if (z0(1) >= (z0(2)+z0(3)+z0(4))) then !液相から気相が出てくるパターン
                        do i=1,com_2phase
@@ -569,11 +572,17 @@ program  main
                         end do
                     end if
                 end if
+                if (ii == 1) then
+                    write(*,*) lnk0(1),lnk0(2)
+                    write(*,*) z0(1),z0(2),P0
+                    write(*,*) w0(1),w0(2),lumda
+                end if 
                 do i=1,com_2phase
                     lnk(i,ii) = lnk0(i)
                 end do
                 V(ii) = V0
                 L(ii) = 1.0d0-V(ii)
+                
                 !write(*,*) '------------'
                 !write(*,*) day,ii
                 !write(*,*) phase
@@ -680,7 +689,7 @@ program  main
                 end do
                 P(i) = P(i) + hmat(i*eq-1)
                 V(i) = V(i) + hmat(i*eq)
-                write(*,*) day,'day',i,phase(i),V(i)
+                
             end do
             if (q_judge == 1) then
                 Pb0 = Pb0 + hmat(n*eq+q_judge)
@@ -696,11 +705,11 @@ program  main
 
         end do !iteration loop
         
-        
+        write(*,*) day,'day',hour,'hour',phase(1),V(1)
 
-        Pold = P
-        Ncold = Nc
-        Nmold = Nm
+        Pold(:) = P(:)
+        Ncold(:,:) = Nc(:,:)
+        Nmold(:,:) = Nm(:,:)
         do i =1,n
             Nt = 0.0d0
             do j =1,com_2phase+com_ion
@@ -711,7 +720,11 @@ program  main
             end do
         end do
 
-        !?タイムループ回った！次回からは検証に向けて条件整える
+        do i=1,n
+            write(30+i,*) P(i)
+            write(35+i,*) Sw(i)
+        end do
+        
     end do !hour loop
     !do i=1,n
     !        write(*,*) day,iteration!,P(i)
@@ -721,8 +734,8 @@ program  main
     
     
     do i=1,n
-        write(30+i,*) P(i)
-        write(35+i,*) Sw(i)
+        !write(30+i,*) P(i)
+        !write(35+i,*) Sw(i)
         write(40+i,*) wc(1,i)
         write(45+i,*) wc(2,i)
         write(50+i,*) wc(3,i)
