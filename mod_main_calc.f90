@@ -172,6 +172,9 @@ module mod_main_calc
             do j=1,com_2phase
                 rach(i) = rach(i) +(1.0d0-k(j,i))*z(j,i)/(1.0d0-V(i)+V(i)*k(j,i))
             end do
+            do j=com_2phase+1,com_2phase+com_ion
+                rach(i) = rach(i) +z(j,i)/(1.0d0-V(i))
+            end do
         end do
         !do j=1,com_2phase+com_ion
         !    kakuninnnnnn(j) = z(j,1)
@@ -485,7 +488,7 @@ module mod_main_calc
         !!化学反応======================================
         !!速度定数[mol/m^3/s]
         do i=1,chemi
-            ks(i) =1.0d0*10.0d0**(-0.0d0) !化学反応
+            ks(i) =1.0d0*10.0d0**(-4.0d0) !化学反応
         end do
         ks(6)=10.0d0**(-9.12d0) !アノーサイト
         ks(7)=10.0d0**(-12.0d0)!10.0d0**(-12.7d0) !エンスタタイト

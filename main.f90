@@ -446,7 +446,7 @@ program  main
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,1!5!0!150!0
+        do day =1,3!10!50!0!150!0
         do hour =1,1!24    
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
@@ -572,10 +572,17 @@ program  main
                 do i=1,com_2phase
                     lnk(i,ii) = lnk0(i)
                 end do
+                V(ii) = V0
+                L(ii) = 1.0d0-V(ii)
+                !write(*,*) '------------'
+                !write(*,*) day,ii
+                !write(*,*) phase
+                !write(*,*) 'VVVVV',V
     
-                
+                !write(*,*) lumda
                     !write(*,*) ii,'grid',phase_judge(ii),'phase'
             end do
+            
 
         !!mainの流動計算
         write(30,*) phase    
@@ -603,24 +610,29 @@ program  main
             do i=1,n
 
                 do j=1,com_2phase
-                    if (Nc(j,i) == 0) then
+                    if (Nc(j,i) == 0.0d0) then
                         do jj=1,eq
                             gmat(i*eq-eq+j,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j) = 0.0d0
-                            gmat(i*eq-eq+j,i*eq-eq+j) = 1.0d0 !?存在しない成分の熱力学平衡条件式は計算しない？
                         end do
+                        gmat(i*eq-eq+j,i*eq-eq+j) = 1.0d0 !?存在しない成分の熱力学平衡条件式は計算しない？
+                        hmat(i*eq-eq+j) = 0.0d0
                     end if
                 end do
 
                 do j=1,com_2phase+com_ion
-                    if (Nc(j,i) == 0) then
+                    !write(*,*) Nc(j,i),j,i
+                    if (Nc(j,i) == 0.0d0) then
+                        !write(*,*) j,i
                         do jj=1,eq
                             gmat(i*eq-eq+j+com_2phase,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j+com_2phase) = 0.0d0
                         end do
                         gmat(i*eq-eq+j+com_2phase,i*eq-eq+j+com_2phase) = 1.0d0 !?存在しない成分の物質収支は計算しない？
+                        hmat(i*eq-eq+j+com_2phase) = 0.0d0
                     end if
                 end do
+                !write(*,*) day,i,phase_judge(i),hmat(i*eq)
 
                 if (phase_judge(i) /= 2) then
                     do jj=1,eq
@@ -628,18 +640,23 @@ program  main
                         gmat(jj,i*eq) = 0.0d0
                     end do
                     gmat(i*eq,i*eq) = 1.0d0 !?1相の時は、rachford解かない
+                    hmat(i*eq) = 0.0d0
 
-                    do j=1,com_2phase+com_ion
+
+                    do j=1,com_2phase!+com_ion
                         do jj=1,eq
                             gmat(i*eq-eq+j,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j) = 0.0d0
                         end do
                         gmat(i*eq-eq+j,i*eq-eq+j) = 1.0d0 !?1相の時は、lnk解かない
+                        hmat(i*eq-eq+j) = 0.0d0
                     end do
-                end if
+                end if 
+                !write(*,*) day,i,phase_judge(i),hmat(i*eq)
+            end do
 
-
-                
+            do i=1,n*eq+q_judge
+                !write(13,*) !(gmat(i,j),j=1,n*eq+q_judge),hmat(i)
             end do
             
 
@@ -663,13 +680,14 @@ program  main
                 end do
                 P(i) = P(i) + hmat(i*eq-1)
                 V(i) = V(i) + hmat(i*eq)
+                write(*,*) day,'day',i,phase(i),V(i)
             end do
             if (q_judge == 1) then
                 Pb0 = Pb0 + hmat(n*eq+q_judge)
             end if 
             error = sqrt(dot_product(hmat,hmat))
 
-            write(*,*) iteration,error
+            !write(*,*) iteration,error
             if (error < 10.0d0**(-3.0d0)) then
                 exit
             end if
@@ -683,13 +701,24 @@ program  main
         Pold = P
         Ncold = Nc
         Nmold = Nm
+        do i =1,n
+            Nt = 0.0d0
+            do j =1,com_2phase+com_ion
+                Nt = Nt + Nc(j,i)
+            end do
+            do j=1,com_2phase+com_ion
+                z(j,i) = Nc(j,i) / Nt 
+            end do
+        end do
+
         !?タイムループ回った！次回からは検証に向けて条件整える
     end do !hour loop
     !do i=1,n
     !        write(*,*) day,iteration!,P(i)
     !end do
     
-    write(*,*) day,error,iteration,P(1)
+    !write(*,*) day,error,iteration,phase!,Nc(1,1),Nc(2,1),P(1)
+    
     
     do i=1,n
         write(30+i,*) P(i)
