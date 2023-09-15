@@ -455,7 +455,9 @@ module mod_main_calc
                 w(i)=1.0d0
             end if
         end do
+        w(:) = 1.0d0
         !write(1,*)w
+        write(10,*) W
         !?----------------------
 
         !!トランスミッシビリティー-----

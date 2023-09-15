@@ -446,7 +446,7 @@ program  main
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,3!1!50!0!150!0
+        do day =1,40!1!50!0!150!0
         do hour =1,24    
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
@@ -533,6 +533,11 @@ program  main
                 
                 !!write(*,*)(log(wt))
                 lumda =1.0d0 -log(wt)
+                if (z0(2) < 0.01) then
+                    lumda = 1.0d0
+                else
+                    lumda = 1.0d0-log(wt)
+                end if
                 if (lumda >= 1.0d0) then
                     phase_judge(ii) = 1
                     if (z0(1) > z0(2) +z0(3)+z0(4)) then
@@ -594,7 +599,8 @@ program  main
             
 
         !!mainの流動計算
-        write(30,*) phase    
+        write(30,*) phase   
+        write(10,*) day,hour,phase 
         if (year < 4) then
             q_judge = 1 !流量制御
         else
@@ -705,7 +711,7 @@ program  main
 
         end do !iteration loop
         
-        write(*,*) day,'day',hour,'hour',phase(1),V(1)
+        write(*,*) day,'day',hour,'hour',phase(1),V(1),Sw(1)
 
         Pold(:) = P(:)
         Ncold(:,:) = Nc(:,:)
