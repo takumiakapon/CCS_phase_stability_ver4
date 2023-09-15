@@ -253,11 +253,11 @@ module mod_main_calc
         do i=1,n
             L(i)=1.0d0-V(i)
             Sw(i)=Nt(i)*L(i)*MV_L(i)
-            if(phase_judge(i) == 2) then
+            !if(phase_judge(i) == 2) then
                 Sg(i)=Nt(i)*V(i)*MV_V(i)
-            else
-                call residualvectorset3(n*eq+q_judge,Sg(i))
-            end if
+            !else
+                !call residualvectorset3(n*eq+q_judge,Sg(i))
+            !end if
         end do
         call outxs(Sw,Sw0)
         !write(*,*) Sw0
@@ -455,7 +455,7 @@ module mod_main_calc
                 w(i)=1.0d0
             end if
         end do
-        w(:) = 1.0d0
+        !w(:) = 1.0d0
         !write(1,*)w
         write(10,*) W
         !?----------------------
@@ -716,18 +716,18 @@ module mod_main_calc
         !?grid1
         do j=1,com_2phase+com_ion
             g(1*eq-eq+com_2phase+j)=(-1.0d0/dt)*(Nc(j,1)*fai(1)-Nc0old(j,1)*faiold(1))
-            if (phase(1) == 1 .or. phase(1) == 2) then !?液相あり
+            !if (phase(1) == 1 .or. phase(1) == 2) then !?液相あり
                 g(1*eq-eq+com_2phase+j)=&
                 g(1*eq-eq+com_2phase+j)+(1.0d0/dx**2.0d0)*((w(1)*T_L(j,1)+(1.0d0-W(1))*T_L(j,1))*(P(2)-P(1)))&    
                                                 +rs_sum(j,1)
-            end if
+            !end if
         end do
-        if (phase(1) == 3 .or. phase(1) == 2) then !?気相あり
+        !if (phase(1) == 3 .or. phase(1) == 2) then !?気相あり
             do j=1,com_2phase
                 g(1*eq-eq+com_2phase+j)=&
                 g(1*eq-eq+com_2phase+j)+(1.0d0/dx**2.0d0)*((w(1)*T_V(j,1)+(1.0d0-W(1))*T_V(j,1))*(P(2)-P(1)))
             end do
-        end if
+        !end if
 
         g(1*eq-eq+com_2phase+2)=g(1*eq-eq+com_2phase+2)+q*MD_injection_d
 
@@ -738,38 +738,38 @@ module mod_main_calc
         do i=2,n-1
             do j=1,com_2phase+com_ion
                 g(i*eq-eq+j+com_2phase)=(-1.0d0/dt)*(Nc(j,i)*fai(i)-Nc0old(j,i)*faiold(i))
-                if (phase(i) == 1 .or. phase(i) == 2) then !?液相あり
+                !if (phase(i) == 1 .or. phase(i) == 2) then !?液相あり
                     g(i*eq-eq+j+com_2phase)=&
                     g(i*eq-eq+j+com_2phase)+(1.0d0/dx**2.0d0)*((W(i)*T_L(j,i)+(1.0d0-W(i))*T_L(j,i+1))*(P(i+1)-P(i))-&
                                                                (W(i-1)*T_L(j,i-1)+(1.0d0-W(i-1))*T_L(j,i))*(P(i)-P(i-1)))&
                                                             +rs_sum(j,i)
-                end if
+                !end if
             end do
-            if (phase(i) == 3 .or. phase(i) == 2) then !?気相あり
+            !if (phase(i) == 3 .or. phase(i) == 2) then !?気相あり
                 do j=1,com_2phase
                     g(i*eq-eq+j+com_2phase)=&
                     g(i*eq-eq+j+com_2phase)+(1.0d0/dx**2.0d0)*((W(i)*T_V(j,i)+(1.0d0-W(i))*T_V(j,i+1))*(P(i+1)-P(i))-&
                                                                (W(i-1)*T_V(j,i-1)+(1.0d0-W(i-1))*T_V(j,i))*(P(i)-P(i-1)))
                 end do
-            end if            
+            !end if            
         end do
 
 
         !?gridn
         do j=1,com_2phase+com_ion
             g(n*eq-eq+com_2phase+j)=(-1.0d0/dt)*(Nc(j,n)*fai(n)-Nc0old(j,n)*faiold(n))
-            if (phase(n) == 1 .or. phase(n) == 2) then !?液相あり
+            !if (phase(n) == 1 .or. phase(n) == 2) then !?液相あり
                 g(n*eq-eq+com_2phase+j)=&
                 g(n*eq-eq+com_2phase+j)+(-1.0d0/dx**2.0d0)*((W(n-1)*T_L(j,n-1)+(1.0d0-W(n-1))*T_L(j,n))*(P(n)-P(n-1)))&
                                                 +rs_sum(j,n)
-            end if
+            !end if
         end do
-        if (phase(n) == 3 .or. phase(n) == 2) then !?気相あり
+        !if (phase(n) == 3 .or. phase(n) == 2) then !?気相あり
             do j=1,com_2phase
                 g(n*eq-eq+com_2phase+j)=&
                 g(n*eq-eq+com_2phase+j)+(-1.0d0/dx**2.0d0)*((W(n-1)*T_V(j,n-1)+(1.0d0-W(n-1))*T_V(j,n))*(P(n)-P(n-1)))
             end do
-        end if
+        !end if
 
 
 
@@ -797,7 +797,7 @@ module mod_main_calc
 
         !!流量制御
         if (q_judge == 1) then
-            g(n*eq+q_judge) = q_input - q*MD_injection_d !!坑井式
+                g(n*eq+q_judge) = q_input - q*MD_injection_d !!坑井式
         end if
         Sw00=Sw0
 

@@ -18,7 +18,7 @@ program  main
 
     
     !!初期計算用
-    integer::i,j,jj,iteration,time,phase_judge0,phase0,ii,year,q_judge,hour,day
+    integer::i,j,jj,iteration,time,phase_judge0,phase0,ii,year,q_judge,hour,day,minute
     real(8),allocatable,dimension(:,:)::amat,cmat,emat,gmat
     real(8),allocatable,dimension(:)::bmat,z0,k0,lnk0,x0,y0,w0,alpha0,dmat,fmat,hmat
     real(8)::V0,L0,P0,P0old,error,wt,lumda,z_factor0
@@ -447,7 +447,8 @@ program  main
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
         do day =1,40!1!50!0!150!0
-        do hour =1,24    
+        do hour =1,24   
+            do minute =1,1!60 
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
                 do i=1,com_2phase+com_ion
@@ -521,7 +522,7 @@ program  main
                 
                     error = sqrt(dot_product(bmat,bmat))
                    !write(*,*) error,iteration
-                    if (error < 10.0d0**(-3.0d0)) then
+                    if (error < 10.0d0**(-5.0d0)) then
                         exit
                     end if
                 end do
@@ -578,9 +579,9 @@ program  main
                     end if
                 end if
                 if (ii == 1) then
-                    write(*,*) lnk0(1),lnk0(2)
-                    write(*,*) z0(1),z0(2),P0
-                    write(*,*) w0(1),w0(2),lumda
+                    !write(*,*) lnk0(1),lnk0(2)
+                    !write(*,*) z0(1),z0(2),P0
+                    !write(*,*) w0(1),w0(2),lumda
                 end if 
                 do i=1,com_2phase
                     lnk(i,ii) = lnk0(i)
@@ -702,8 +703,8 @@ program  main
             end if 
             error = sqrt(dot_product(hmat,hmat))
 
-            !write(*,*) iteration,error
-            if (error < 10.0d0**(-3.0d0)) then
+            !write(*,*) day,hour,iteration,error
+            if (error < 10.0d0**(-5.0d0)) then
                 exit
             end if
 
@@ -711,7 +712,7 @@ program  main
 
         end do !iteration loop
         
-        write(*,*) day,'day',hour,'hour',phase(1),V(1),Sw(1)
+        
 
         Pold(:) = P(:)
         Ncold(:,:) = Nc(:,:)
@@ -727,10 +728,11 @@ program  main
         end do
 
         do i=1,n
-            write(30+i,*) P(i)
+            write(30+i,*) day,hour,P(i)
             write(35+i,*) Sw(i)
         end do
-        
+    end do !minute loop   
+    write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
     end do !hour loop
     !do i=1,n
     !        write(*,*) day,iteration!,P(i)
