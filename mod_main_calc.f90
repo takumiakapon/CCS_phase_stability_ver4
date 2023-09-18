@@ -55,7 +55,7 @@ module mod_main_calc
         type(diffs),dimension(n)::w1,w2,w3,w4,w5,w6,w7,w8,w9,wten,w11,w12,w13,w14
         !type(diffs),dimension(n)::Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Qten
         type(diffs),dimension(n)::theta1,theta2,theta3,theta4,theta5,theta6,theta7,theta8,theta9,thetaten
-        type(diffs)::rs(chemi+mine,n),rs_sum(com_all,n),rs1(n)
+        type(diffs)::rs(chemi+mine,n),rs_sum(com_all,n),rs1(n),T(n)
         real(8)::AA(mine)
 
         allocate(x0(n*eq+q_judge))
@@ -215,6 +215,8 @@ module mod_main_calc
         !    kakuninnnnnn(j) = lnfai_L(j,1)
         !end do
         !call outxs(kakuninnnnnn,kakuninn)
+        !write(*,*) kakuninn
+        call outxs(z_factor,kakuninn)
         !write(*,*) kakuninn
 
         
@@ -445,6 +447,7 @@ module mod_main_calc
             !?call residualvectorset3(n*eq+q_judge,q) !?圧力制御 !!ここ覚えていない、上の方が正しそうだけど、なんだっけ？
         end if
 
+        
         call injection_data_d(P(1),MD_injection_d)
 
         !!weighting factor------
@@ -485,6 +488,12 @@ module mod_main_calc
                 end do
             end if
         end do
+        do i=1,n
+            T(i) = T_V(1,i)
+        end do
+        call outxs(T,kakuninn)
+        !write(*,*) kakuninn(1),kakuninn(2),kakuninn(3)
+
 
 
         !!化学反応======================================

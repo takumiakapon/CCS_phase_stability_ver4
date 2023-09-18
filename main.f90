@@ -446,7 +446,7 @@ program  main
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,40!1!50!0!150!0
+        do day =1,100!1!50!0!150!0
         do hour =1,24   
             do minute =1,1!60 
         !    !!相安定解析
@@ -534,7 +534,7 @@ program  main
                 
                 !!write(*,*)(log(wt))
                 lumda =1.0d0 -log(wt)
-                if (z0(2) < 0.01) then
+                if (z0(2) < 0.04) then
                     lumda = 1.0d0
                 else
                     lumda = 1.0d0-log(wt)
@@ -609,7 +609,7 @@ program  main
         end if
         q_judge = 1 !!とりあえず流量制御で固定
 
-        do iteration=1,100
+        do iteration=1,10!0
             call main_calc(V,lnk,Nc,Ncold,Nm,Nmold,Nmini,P,Pold,Pb0,fai,fai000,q_judge,phase_judge,phase,&
                             Swd,krgd,krwd,Sw,wc,chemi_mat,theta0,fxs)
 
@@ -713,6 +713,7 @@ program  main
         end do !iteration loop
         
         
+        
 
         Pold(:) = P(:)
         Ncold(:,:) = Nc(:,:)
@@ -732,7 +733,11 @@ program  main
             write(35+i,*) Sw(i)
         end do
     end do !minute loop   
+    !if (day == 39 .and. hour == 10) then
+    !    goto 1000
+    !end if
     write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
+    write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
     end do !hour loop
     !do i=1,n
     !        write(*,*) day,iteration!,P(i)
@@ -780,6 +785,6 @@ program  main
         end do !year loop
         deallocate(amat,bmat,gmat,hmat)
     
-    
+    !1000&
     write(*,*) 'finish!!!'
 end program  main
