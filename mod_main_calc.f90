@@ -159,7 +159,6 @@ module mod_main_calc
         end do
 
         !!rachford-rice
-        !#TODO相の数で判断するか否か
         do i=1,n
             call residualvectorset3(n*eq+q_judge,Nt(i))
             do j=1,com_2phase+com_ion
@@ -184,7 +183,7 @@ module mod_main_calc
 
         !!モル分率----------------------
         do i=1,n
-            if (phase_judge(i) == 2) then
+            if (phase_judge(i) == 2) then !2相の時
                 do j=1,com_2phase
                     x(j,i) = z(j,i)/(1.0d0-V(i)+V(i)*k(j,i))
                     y(j,i) = x(j,i)*k(j,i)
@@ -192,7 +191,7 @@ module mod_main_calc
                 do j=com_2phase+1,com_2phase+com_ion
                     x(j,i) = z(j,i)/(1.0d0-V(i))
                 end do
-            elseif (phase(i) == 1) then
+            elseif (phase(i) == 1) then !液相だけの時
                 do j=1,com_2phase
                     call residualvectorset3(n*eq+q_judge,y(j,i))
                 end do
@@ -223,7 +222,7 @@ module mod_main_calc
         !!モル密度、体積
         !?気相
         do i=1,n
-            if (phase_judge(i) == 2) then
+            if (phase_judge(i) == 2 .or. phase(i) == 3) then
                 MD_V(i) = P(i)/z_factor(i)/R/temp
                 MV_V(i) = 1.0d0/MD_V(i)
             else
@@ -301,12 +300,12 @@ module mod_main_calc
         end do
         call outxs(phase_d_V,kakuninn)
         !write(*,*) kakuninn
-        if (phase_judge(1) == 2) then
-            call outxs(phase_d_L,kakuninn)
+        !if (phase_judge(1) == 2) then
+        !    call outxs(phase_d_L,kakuninn)
             !write(*,*) kakuninn(1),'liquids'
-            call outxs(phase_d_V,kakuninn)
+        !    call outxs(phase_d_V,kakuninn)
             !write(*,*) kakuninn(1),'vapor'
-        end if !?密度OK
+        !end if !?密度OK
 
         !!相粘度
         !?液相

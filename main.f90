@@ -743,7 +743,7 @@ program  main
     
     end do !hour loop
 
-    write(*,*) 'Hello'
+    
     !do i=1,n
     !        write(*,*) day,iteration!,P(i)
     !end do
