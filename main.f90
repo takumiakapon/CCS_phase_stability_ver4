@@ -609,7 +609,7 @@ program  main
         end if
         q_judge = 1 !!とりあえず流量制御で固定
 
-        do iteration=1,10!0
+        do iteration=1,100
             call main_calc(V,lnk,Nc,Ncold,Nm,Nmold,Nmini,P,Pold,Pb0,fai,fai000,q_judge,phase_judge,phase,&
                             Swd,krgd,krwd,Sw,wc,chemi_mat,theta0,fxs)
 
@@ -696,7 +696,6 @@ program  main
                 end do
                 P(i) = P(i) + hmat(i*eq-1)
                 V(i) = V(i) + hmat(i*eq)
-                
             end do
             if (q_judge == 1) then
                 Pb0 = Pb0 + hmat(n*eq+q_judge)
@@ -737,9 +736,9 @@ program  main
         !write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
         !write(*,*) P(1)
     end if
-    if (day == 39 .and. hour == 10) then
-        goto 1000
-    end if
+    !if (day == 39 .and. hour == 10) then
+    !    goto 1000
+    !end if
     write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
     
     end do !hour loop

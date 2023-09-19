@@ -306,11 +306,6 @@ module mod_main_calc
             !write(*,*) kakuninn(1),'liquids'
             call outxs(phase_d_V,kakuninn)
             !write(*,*) kakuninn(1),'vapor'
-            do j=1,com_2phase
-                T(j)=y(j,1)
-            end do
-            call outxs(T,kakuninn)
-            !write(*,*) kakuninn(1),kakuninn(2),'y'
         end if !?密度OK
 
         !!相粘度

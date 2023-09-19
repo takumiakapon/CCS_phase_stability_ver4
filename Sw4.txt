@@ -918,5 +918,43 @@
   0.99999999999999989     
    1.0000000000000000     
    1.0000000000000000     
+  0.99999999999999978     
    1.0000000000000000     
    1.0000000000000000     
+   1.0000000000000002     
+   1.0000000000000002     
+   1.0000000000000000     
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
+                       NaN
