@@ -742,6 +742,8 @@ program  main
     write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
     
     end do !hour loop
+
+    write(*,*) 'Hello'
     !do i=1,n
     !        write(*,*) day,iteration!,P(i)
     !end do
