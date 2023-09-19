@@ -247,8 +247,14 @@ module mod_main_calc
             MD_L(i) = 1.0d0/MV_L(i)
         end do
 
-        !call outxs(MD_L,kakuninn)
-        !write(*,*) kakuninn
+        
+        if (phase_judge(1) == 2) then
+            call outxs(MD_L,kakuninn)
+            !write(*,*) kakuninn(1),'liquids'
+            call outxs(MD_V,kakuninn)
+            !write(*,*) kakuninn(1),'vapor'
+        end if
+ 
 
 
         !!飽和率の算出
@@ -285,16 +291,27 @@ module mod_main_calc
             call residualvectorset3(n*eq+q_judge,Mw_ave_L(i))
             call residualvectorset3(n*eq+q_judge,Mw_ave_V(i))
             do j=1,com_2phase+com_ion
-                Mw_ave_L(i)=Mw_ave_L(i)+Mw(i)*x(j,i)
+                Mw_ave_L(i)=Mw_ave_L(i)+Mw(j)*x(j,i)
             end do
             do j=1,com_2phase
-                Mw_ave_V(i)=Mw_ave_V(i)+Mw(i)+y(j,i)
+                Mw_ave_V(i)=Mw_ave_V(i)+Mw(j)*y(j,i)
             end do
             phase_d_L(i)=Mw_ave_L(i)*MD_L(i)*10.0d0**(-3.0d0) ![kg/m^3]
             phase_d_V(i)=Mw_ave_V(i)*MD_V(i)*10.0d0**(-3.0d0)
         end do
         call outxs(phase_d_V,kakuninn)
         !write(*,*) kakuninn
+        if (phase_judge(1) == 2) then
+            call outxs(phase_d_L,kakuninn)
+            !write(*,*) kakuninn(1),'liquids'
+            call outxs(phase_d_V,kakuninn)
+            !write(*,*) kakuninn(1),'vapor'
+            do j=1,com_2phase
+                T(j)=y(j,1)
+            end do
+            call outxs(T,kakuninn)
+            !write(*,*) kakuninn(1),kakuninn(2),'y'
+        end if !?密度OK
 
         !!相粘度
         !?液相
@@ -379,7 +396,13 @@ module mod_main_calc
         end do
         
         call outxs(myu_V,kakuninn)
-        !write(*,*) kakuninn!!粘度よさそう
+        if (phase_judge(1) == 2) then
+            call outxs(myu_L,kakuninn)
+            !write(*,*) kakuninn(1),'liquids'
+            call outxs(myu_V,kakuninn)
+            !write(*,*) kakuninn(1),'vapor'
+        end if !?粘度OK
+        
 
         !!相対浸透率について
         do i=1,n

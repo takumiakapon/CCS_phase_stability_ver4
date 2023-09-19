@@ -764,7 +764,9 @@ module mod_fugacity
         !call residualvectorset3(eq,lnfai_V)
         !call outxs(lnfai_V,kakuninn)
         !write(*,*) kakuninn(1),kakuninn(4)
-        !write(*,*) z_factor0
+        if (phase_judge(1) == 2) then
+            !write(*,*) z_factor0 !!zfactor OK
+        end if
         
     end subroutine
     
