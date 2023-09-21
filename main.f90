@@ -733,13 +733,14 @@ program  main
         end do
     end do !minute loop   
     !if (phase_judge(1) == 2) then
-        write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
-        write(*,*) P(1)
+        !write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
+        !write(*,*) P(1)
     !end if
-    if (day == 20 .and. hour == 11) then
+    if (day == 41 .and. hour == 11) then
         goto 1000
     end if
     write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
+    write(*,*) Pb0
     
     end do !hour loop
 
@@ -770,6 +771,7 @@ program  main
         write(200+i,*) theta0(7,i)
 
     end do
+    write(15,*) Pb0
 
 
     

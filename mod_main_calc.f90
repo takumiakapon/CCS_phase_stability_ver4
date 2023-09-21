@@ -302,9 +302,9 @@ module mod_main_calc
         !write(*,*) kakuninn
         !if (phase_judge(1) == 2) then
             call outxs(phase_d_L,kakuninn)
-            write(*,*) kakuninn(1),'liquids'
+            !write(*,*) kakuninn(1),'liquids'
             call outxs(phase_d_V,kakuninn)
-            write(*,*) kakuninn(1),'vapor'
+            !write(*,*) kakuninn(1),'vapor'
         !end if !?密度OK
 
         !!相粘度

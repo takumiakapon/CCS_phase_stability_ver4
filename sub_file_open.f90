@@ -6,6 +6,7 @@ subroutine file_open
     open(12,file='aaa.txt')
     open(13,file='iii.txt')
     open(14,file='iniconditon.txt')
+    open(15,file='pb.txt')
 
     open(30,file='phase.txt')
     open(31,file='grid1.txt')
