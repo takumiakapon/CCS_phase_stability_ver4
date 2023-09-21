@@ -446,9 +446,9 @@ program  main
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,150!150!100!1!50!0!150!0
+        do day =1,50!0!150!0
         do hour =1,24   
-            do minute =1,2!60 
+            do minute =1,1!2!60 
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
                 do i=1,com_2phase+com_ion
@@ -534,11 +534,11 @@ program  main
                 
                 !!write(*,*)(log(wt))
                 lumda =1.0d0 -log(wt)
-                !if (z0(2) < 0.01) then
-                !    lumda = 1.0d0
-                !else
-                !    lumda = 1.0d0-log(wt)
-                !end if
+                if (z0(2) < 0.01) then
+                    lumda = 1.0d0
+                else
+                    lumda = 1.0d0-log(wt)
+                end if
                 if (lumda >= 1.0d0) then
                     phase_judge(ii) = 1
                     if (z0(1) > z0(2) +z0(3)+z0(4)) then
@@ -728,17 +728,17 @@ program  main
         end do
 
         do i=1,n
-            !write(30+i,*) day,hour,P(i)
-            !write(35+i,*) Sw(i)
+            write(30+i,*) day,hour,P(i)
+            write(35+i,*) Sw(i)
         end do
     end do !minute loop   
-    if (phase_judge(1) == 2) then
-        !write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
-        !write(*,*) P(1)
-    end if
-    !if (day == 39 .and. hour == 10) then
-    !    goto 1000
+    !if (phase_judge(1) == 2) then
+        write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
+        write(*,*) P(1)
     !end if
+    if (day == 20 .and. hour == 11) then
+        goto 1000
+    end if
     write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
     
     end do !hour loop
@@ -752,8 +752,8 @@ program  main
     
     
     do i=1,n
-        write(30+i,*) P(i)
-        write(35+i,*) Sw(i)
+        !write(30+i,*) P(i)
+        !write(35+i,*) Sw(i)
         write(40+i,*) wc(1,i)
         write(45+i,*) wc(2,i)
         write(50+i,*) wc(3,i)
@@ -790,6 +790,6 @@ program  main
         end do !year loop
         deallocate(amat,bmat,gmat,hmat)
     
-    !1000&
+    1000&
     write(*,*) 'finish!!!'
 end program  main

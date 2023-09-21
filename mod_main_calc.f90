@@ -301,10 +301,10 @@ module mod_main_calc
         call outxs(phase_d_V,kakuninn)
         !write(*,*) kakuninn
         !if (phase_judge(1) == 2) then
-        !    call outxs(phase_d_L,kakuninn)
-            !write(*,*) kakuninn(1),'liquids'
-        !    call outxs(phase_d_V,kakuninn)
-            !write(*,*) kakuninn(1),'vapor'
+            call outxs(phase_d_L,kakuninn)
+            write(*,*) kakuninn(1),'liquids'
+            call outxs(phase_d_V,kakuninn)
+            write(*,*) kakuninn(1),'vapor'
         !end if !?密度OK
 
         !!相粘度
@@ -390,12 +390,16 @@ module mod_main_calc
         end do
         
         call outxs(myu_V,kakuninn)
-        if (phase_judge(1) == 2) then
+        !if (phase_judge(1) == 2) then
             call outxs(myu_L,kakuninn)
             !write(*,*) kakuninn(1),'liquids'
             call outxs(myu_V,kakuninn)
             !write(*,*) kakuninn(1),'vapor'
-        end if !?粘度OK
+            !write(*,*) exp(lnk0(1,1)),'H2O'
+            !write(*,*) exp(lnk0(2,1)),'CO2'
+            !write(*,*) Sw0(1),'Sw'
+            !write(*,*) V0(1),'V'
+        !end if !?粘度OK
         
 
         !!相対浸透率について
