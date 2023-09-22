@@ -441,14 +441,16 @@ program  main
         phase(i)=phase0
     end do
     Pb0 = P(1)
+
+   
     
     
     !!ようやくメイン計算！！！
     allocate(amat(com_2phase,com_2phase),bmat(com_2phase),gmat(n*eq,n*eq),hmat(n*eq))
     do year=1,1!3!50!000
-        do day =1,50!0!150!0
+        do day =1,150!0!150!0
         do hour =1,24   
-            do minute =1,1!2!60 
+            do minute =1,1!60 
         !    !!相安定解析
             do ii=1,n !gridごとに相安定性解析するよ
                 do i=1,com_2phase+com_ion
@@ -627,7 +629,7 @@ program  main
 
                 do j=1,com_2phase
                     if (Nc(j,i) == 0.0d0) then
-                        do jj=1,eq
+                        do jj=1,n*eq
                             gmat(i*eq-eq+j,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j) = 0.0d0
                         end do
@@ -640,7 +642,7 @@ program  main
                     !write(*,*) Nc(j,i),j,i
                     if (Nc(j,i) == 0.0d0) then
                         !write(*,*) j,i
-                        do jj=1,eq
+                        do jj=1,n*eq
                             gmat(i*eq-eq+j+com_2phase,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j+com_2phase) = 0.0d0
                         end do
@@ -650,8 +652,8 @@ program  main
                 end do
                 !write(*,*) day,i,phase_judge(i),hmat(i*eq)
 
-                if (phase_judge(i) /= 2) then
-                    do jj=1,eq
+                if (phase_judge(i) == 1) then
+                    do jj=1,n*eq
                         gmat(i*eq,jj) = 0.0d0
                         gmat(jj,i*eq) = 0.0d0
                     end do
@@ -660,7 +662,7 @@ program  main
 
 
                     do j=1,com_2phase!+com_ion
-                        do jj=1,eq
+                        do jj=1,n*eq
                             gmat(i*eq-eq+j,jj) = 0.0d0
                             gmat(jj,i*eq-eq+j) = 0.0d0
                         end do
@@ -672,8 +674,9 @@ program  main
             end do
 
             do i=1,n*eq+q_judge
-                !write(13,*) !(gmat(i,j),j=1,n*eq+q_judge),hmat(i)
+                !write(13,*) (gmat(i,j),j=1,n*eq+q_judge),hmat(i)
             end do
+            
             
 
             call pvgauss(n*eq+q_judge,gmat,hmat)
@@ -706,9 +709,6 @@ program  main
             if (error < 10.0d0**(-5.0d0)) then
                 exit
             end if
-
-            
-
         end do !iteration loop
         
         
@@ -728,17 +728,36 @@ program  main
         end do
 
         do i=1,n
-            write(30+i,*) day,hour,P(i)
-            write(35+i,*) Sw(i)
+        !    write(30+i,*) day,hour,P(i)
+        !    write(35+i,*) Sw(i)
         end do
     end do !minute loop   
     !if (phase_judge(1) == 2) then
         !write(*,*) Nc(1,1)/(Nc(1,1)+Nc(2,1)),Nc(2,1)/(Nc(1,1)+Nc(2,1))
         !write(*,*) P(1)
     !end if
-    if (day == 41 .and. hour == 11) then
-        goto 1000
+    if (day == 39 .and. hour == 6) then
+        do i=1,n
+        !write(13,*) V(i)
+        do j=1,com_2phase+com_ion
+        !    write(13,*) Nc(j,i),z(j,i)
+        end do
+        do j=1,com_mine
+        !    write(13,*) Nm(j,i)
+        end do
+        do j=1,com_2phase
+        !    write(13,*) lnk(j,i)
+        end do
+        !write(13,*) fai(i)
+        !write(13,*) P(i)
+        !write(13,*) phase_judge(i)
+        !write(13,*) phase(i)
+    end do
     end if
+    !write(13,*) hmat(25),hmat(50),hmat(75),hmat(100),hmat(125)
+    !if (day == 39 .and. hour == 11) then
+    !    goto 1000
+    !end if
     write(*,*) day,'day',hour,'hour',phase(1),'phase',' V:',V(1),error!Sw(1) 
     write(*,*) Pb0
     
@@ -753,8 +772,8 @@ program  main
     
     
     do i=1,n
-        !write(30+i,*) P(i)
-        !write(35+i,*) Sw(i)
+        write(30+i,*) P(i)
+        write(35+i,*) Sw(i)
         write(40+i,*) wc(1,i)
         write(45+i,*) wc(2,i)
         write(50+i,*) wc(3,i)
